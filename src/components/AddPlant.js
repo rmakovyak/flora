@@ -152,7 +152,7 @@ export default function AddPlant() {
       <Space size={24} direction="vertical" style={{ width: '100%' }}>
         <Breadcrumb>
           <Breadcrumb.Item>
-            <img src={icon} width={32} style={{ marginRight: 4 }} />
+            <HomeOutlined />
             <Link to="/">
               <span>My plants</span>
             </Link>

@@ -1,9 +1,10 @@
 import React from 'react';
-import { Layout } from 'antd';
+import { Layout, Header } from 'antd';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import AddPlant from 'components/AddPlant';
 import MyList from 'components/MyList';
 
+import logo from 'images/logo.png';
 import './App.css';
 
 const { Content } = Layout;
@@ -11,6 +12,9 @@ const { Content } = Layout;
 function App() {
   return (
     <Router>
+      <Layout.Header style={{ background: '#fff', padding: '0 16px' }}>
+        <img src={logo} width={96} alt="logo" />
+      </Layout.Header>
       <Layout className="layout">
         <Content className="content">
           <Switch>
