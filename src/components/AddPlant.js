@@ -20,7 +20,6 @@ import {
   SmileOutlined,
 } from '@ant-design/icons';
 import { createPlant, searchPlants } from 'api/plants';
-import icon from 'images/icon.png';
 import './AddPlant.css';
 
 const { Step } = Steps;

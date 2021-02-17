@@ -11,52 +11,69 @@ import {
 } from 'antd';
 import {
   HomeOutlined,
-  EditOutlined,
-  ThunderboltOutlined,
-  ThunderboltTwoTone,
-  DeleteOutlined,
   ExclamationCircleOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { getPlants, deletePlant } from 'api/plants';
+import {
+  getPlants,
+  deletePlant,
+  createPlantWatering,
+  getPlantWaterings,
+} from 'api/plants';
+import PlantCard from './PlantCard';
 
 const { confirm } = Modal;
 
 export default function MyList() {
   const [plants, setPlants] = useState([]);
+  const [waterings, setWaterings] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const asyncCall = async () => {
-      const response = await getPlants();
-      setPlants(response.data);
+    const fetchData = async () => {
+      const plantsResponse = await getPlants();
+      const wateringResponse = await getPlantWaterings();
+      setPlants(plantsResponse.data);
+      setWaterings(wateringResponse.data);
       setLoading(false);
     };
 
-    asyncCall();
+    fetchData();
   }, []);
 
-  const onDelete = async (plant) => {
+  const handleDelete = async (plant) => {
     try {
-      confirmDelete(async () => {
-        await deletePlant(plant.id);
-        const response = await getPlants();
-        setPlants(response.data);
-        message.success(`I've removed ${plant.name} from your list`);
+      confirm({
+        title: 'Do you want to delete this plant?',
+        icon: <ExclamationCircleOutlined />,
+        content: 'All data will be permanently lost',
+        onOk: async () => {
+          await deletePlant(plant.id);
+          const response = await getPlants();
+          setPlants(response.data);
+          message.success(`I've removed ${plant.name} from your list`);
+        },
       });
     } catch {
       message.error(`I've failed to remove ${plant.name} from your list`);
     }
   };
 
-  const confirmDelete = (confirmAction) => {
-    confirm({
-      title: 'Do you want to delete this plant?',
-      icon: <ExclamationCircleOutlined />,
-      content: 'All data will be permanently lost',
-      onOk() {
-        return confirmAction();
-      },
-    });
+  const handleCreateWatering = async (plant) => {
+    try {
+      confirm({
+        title: 'Did you water this plant?',
+        icon: <QuestionCircleOutlined />,
+        onOk: async () => {
+          await createPlantWatering(plant.id);
+          const response = await getPlantWaterings();
+          setWaterings(response.data);
+          message.success(`I've marked that ${plant.name} was watered!`);
+        },
+      });
+    } catch {
+      message.error(`I've failed to marked watering for  ${plant.name}`);
+    }
   };
 
   return (
@@ -73,36 +90,20 @@ export default function MyList() {
         <Link to="/add-plant">Add new plant</Link>
       </div>
       {loading && (
-        <Card
-          actions={[
-            <ThunderboltOutlined key="water" />,
-            <EditOutlined key="edit" />,
-            <DeleteOutlined key="ellipsis" />,
-          ]}
-        >
+        <Card>
           <Skeleton loading={loading} avatar active></Skeleton>
         </Card>
       )}
-      {plants.length === 0 && <p>You have no plants!</p>}
-      {plants.map((p) => (
-        <Card
-          actions={[
-            <ThunderboltTwoTone key="water" />,
-            <EditOutlined key="edit" />,
-            <DeleteOutlined key="delete" onClick={() => onDelete(p)} />,
-          ]}
-        >
-          <Card.Meta
-            avatar={<Avatar size={56} src={p.meta.image_url} />}
-            title={p.name}
-            description={
-              <>
-                <p>Location: {p.location}</p>
-                <p>Watering: Every {p.wateringTimeframe} days</p>
-              </>
-            }
-          />
-        </Card>
+      {plants.length === 0 && !loading && <p>You have no plants!</p>}
+      {plants.map((data) => (
+        <PlantCard
+          plant={data}
+          onDelete={handleDelete}
+          onCreateWatering={handleCreateWatering}
+          waterings={
+            waterings?.filter(({ plantId }) => plantId === data.id) || []
+          }
+        />
       ))}
     </Space>
   );

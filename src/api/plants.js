@@ -1,4 +1,3 @@
-import axios from 'axios';
 import apiClient from './apiClient';
 
 export function searchPlants(q) {
@@ -15,4 +14,12 @@ export function createPlant(body) {
 
 export function deletePlant(id) {
   return apiClient.delete(`/plants/${id}`);
+}
+
+export function createPlantWatering(plantId) {
+  return apiClient.post(`/watering/${plantId}`);
+}
+
+export function getPlantWaterings() {
+  return apiClient.get(`/watering`);
 }
