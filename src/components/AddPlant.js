@@ -18,7 +18,7 @@ import {
   FormOutlined,
   SmileOutlined,
 } from '@ant-design/icons';
-import { createPlant, searchPlants } from 'api/plants';
+import { createPlant, searchPlants, createLocation } from 'api/plants';
 import './AddPlant.css';
 
 const { Step } = Steps;
@@ -52,16 +52,18 @@ export default function AddPlant() {
     setStep(1);
   };
 
-  const onFormSubmit = async (values) => {
+  const onFormSubmit = async ({ name, wateringTimeframe, location }) => {
     setSubmitting(true);
     const payload = {
-      ...values,
+      name,
+      wateringTimeframe,
       meta: selectedPlant,
     };
 
     try {
-      await createPlant(payload);
-      message.success(`I've added a ${values.name} to your list.`);
+      const response = await createPlant(payload);
+      await createLocation(response.data, location);
+      message.success(`I've added a ${name} to your list.`);
       history.push('/');
     } catch (e) {
       message.error(`I've failed to add new plant, please check server logs.`);

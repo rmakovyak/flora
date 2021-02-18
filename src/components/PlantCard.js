@@ -1,22 +1,41 @@
-import React from 'react';
-import { Card, Avatar, Timeline, Collapse, Statistic, Row, Col } from 'antd';
+import React, { useState } from 'react';
+import {
+  Card,
+  Avatar,
+  Timeline,
+  Collapse,
+  Statistic,
+  Row,
+  Col,
+  Button,
+  Space,
+  Input,
+  Form,
+} from 'antd';
 import { DateTime } from 'luxon';
 import {
   ExperimentOutlined,
-  EditOutlined,
+  EnvironmentOutlined,
   DeleteOutlined,
   AlertTwoTone,
 } from '@ant-design/icons';
+import sortByDate from 'helpers/sortByDate';
 
 export default function PlantCard({
   plant,
   onCreateWatering,
+  onCreateLocation,
   onDelete,
   onDeleteWatering,
+  onDeleteLocation,
   waterings,
+  locations,
   hasWateringAlert,
 }) {
+  const [form] = Form.useForm();
   const lastWatering = waterings[0];
+  const sortedLocations = sortByDate(locations);
+  const lastLocation = [...sortedLocations].pop();
   const lastWateringDate = DateTime.fromISO(lastWatering?.creationDate);
 
   const nextWateringDate = lastWateringDate.plus({
@@ -26,8 +45,10 @@ export default function PlantCard({
   return (
     <Card
       actions={[
-        <ExperimentOutlined onClick={() => onCreateWatering(plant)} />,
-        <EditOutlined key="edit" />,
+        <ExperimentOutlined
+          key="water"
+          onClick={() => onCreateWatering(plant)}
+        />,
         <DeleteOutlined key="delete" onClick={() => onDelete(plant)} />,
       ]}
     >
@@ -41,13 +62,13 @@ export default function PlantCard({
                 <AlertTwoTone twoToneColor="red" /> Needs water!
               </p>
             )}
-            <p>Location: {plant.location}</p>
+            <p>Location: {lastLocation?.title}</p>
           </>
         }
       />
 
       <Collapse defaultActiveKey={['1']} ghost>
-        <Collapse.Panel header="Schedule" key="2">
+        <Collapse.Panel header="Watering schedule" key="2">
           <Row gutter={16}>
             <Col span={24}>
               <Statistic
@@ -74,7 +95,7 @@ export default function PlantCard({
           </Row>
         </Collapse.Panel>
 
-        <Collapse.Panel header=" History" key="3">
+        <Collapse.Panel header="Watering history" key="3">
           <Timeline>
             {waterings.map(({ creationDate, id }) => (
               <Timeline.Item>
@@ -82,6 +103,41 @@ export default function PlantCard({
                 <DeleteOutlined onClick={() => onDeleteWatering(id)} />
               </Timeline.Item>
             ))}
+          </Timeline>
+        </Collapse.Panel>
+        <Collapse.Panel header="Location history" key="4">
+          <Timeline>
+            {sortedLocations.map(({ creationDate, title, id }) => (
+              <Timeline.Item>
+                {title} {DateTime.fromISO(creationDate).toLocaleString()}{' '}
+                <DeleteOutlined onClick={() => onDeleteLocation(id)} />
+              </Timeline.Item>
+            ))}
+            <Space>
+              <Form
+                layout="horizontal"
+                form={form}
+                onFinish={(values) => {
+                  onCreateLocation(plant.id, values.location);
+                  // setLocationForm(false);
+                }}
+              >
+                <Form.Item
+                  name="location"
+                  rules={[
+                    { required: true, message: 'Please input location!' },
+                  ]}
+                >
+                  <Input placeholder="Next location..." />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    <EnvironmentOutlined />
+                    Add location
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Space>
           </Timeline>
         </Collapse.Panel>
       </Collapse>

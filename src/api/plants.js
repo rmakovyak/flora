@@ -27,3 +27,11 @@ export function getPlantWaterings() {
 export function deleteWatering(id) {
   return apiClient.delete(`/watering/${id}`);
 }
+
+export function createLocation(plantId, location) {
+  return apiClient.post(`/locations/${plantId}/${location}`);
+}
+
+export function deleteLocation(id) {
+  return apiClient.delete(`/locations/${id}`);
+}

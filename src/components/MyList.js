@@ -18,7 +18,13 @@ import {
   PlusCircleOutlined,
 } from '@ant-design/icons';
 
-import { deletePlant, createPlantWatering, deleteWatering } from 'api/plants';
+import {
+  deletePlant,
+  createPlantWatering,
+  deleteWatering,
+  deleteLocation,
+  createLocation,
+} from 'api/plants';
 import { API_URL } from 'config';
 
 import PlantCard from './PlantCard';
@@ -90,6 +96,34 @@ export default function MyList() {
     }
   };
 
+  const handleCreateLocation = async (id, location) => {
+    try {
+      await createLocation(id, location);
+      mutate(PLANTS_URL);
+      mutate(LOCATIONS_URL);
+      message.success(`I've added new location!`);
+    } catch {
+      message.error(`I've failed to create new location`);
+    }
+  };
+
+  const handleDeleteLocation = async (id) => {
+    try {
+      confirm({
+        title: 'Delete this entry?',
+        icon: <QuestionCircleOutlined />,
+        onOk: async () => {
+          await deleteLocation(id);
+          mutate(PLANTS_URL);
+          mutate(LOCATIONS_URL);
+          message.success(`I've deleted location entry!`);
+        },
+      });
+    } catch {
+      message.error(`I've failed to delete location entry`);
+    }
+  };
+
   useEffect(() => {
     alerts?.forEach((alert) =>
       notification.open({
@@ -145,9 +179,14 @@ export default function MyList() {
             plant={data}
             onDelete={handleDelete}
             onCreateWatering={handleCreateWatering}
+            onCreateLocation={handleCreateLocation}
             onDeleteWatering={handleDeleteWatering}
+            onDeleteLocation={handleDeleteLocation}
             waterings={
               waterings?.filter(({ plantId }) => plantId === data.id) || []
+            }
+            locations={
+              locations?.filter(({ plantId }) => plantId === data.id) || []
             }
             hasWateringAlert={Boolean(alerts.find(({ id }) => id === data.id))}
           />
