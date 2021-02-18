@@ -15,6 +15,7 @@ import {
 import {
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
+  PlusCircleOutlined,
 } from '@ant-design/icons';
 
 import { deletePlant, createPlantWatering, deleteWatering } from 'api/plants';
@@ -133,7 +134,9 @@ export default function MyList() {
   return (
     <>
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
-        <Link to="/add-plant">Add new plant</Link>
+        <Link to="/add-plant">
+          <PlusCircleOutlined /> Add new plant
+        </Link>
       </div>
       <Space space={24} direction="vertical" style={{ width: '100%' }}>
         {plants.map((data) => (

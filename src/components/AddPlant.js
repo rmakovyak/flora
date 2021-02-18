@@ -4,7 +4,6 @@ import { debounce } from 'lodash';
 import {
   Input,
   Button,
-  Breadcrumb,
   Space,
   List,
   Avatar,
@@ -14,7 +13,7 @@ import {
   message,
 } from 'antd';
 import {
-  HomeOutlined,
+  RollbackOutlined,
   SearchOutlined,
   FormOutlined,
   SmileOutlined,
@@ -148,17 +147,12 @@ export default function AddPlant() {
 
   return (
     <div>
+      <div style={{ textAlign: 'left', marginTop: '16px' }}>
+        <Link to="/">
+          <RollbackOutlined /> Back
+        </Link>
+      </div>
       <Space size={24} direction="vertical" style={{ width: '100%' }}>
-        <Breadcrumb>
-          <Breadcrumb.Item>
-            <Link to="/">
-              <HomeOutlined />
-            </Link>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>
-            <span>Add new plant</span>
-          </Breadcrumb.Item>
-        </Breadcrumb>
         <Steps>
           <Step
             status={step > 0 ? 'finish' : 'process'}

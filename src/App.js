@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import AddPlant from 'components/AddPlant';
 import MyList from 'components/MyList';
 
-import logo from 'images/logo.png';
+import logo from 'images/logo.svg';
 import ScrollToTop from 'components/ScrollToTop';
 
 import './App.css';
@@ -18,11 +18,19 @@ function App() {
       <Layout.Header
         style={{
           background: '#fff',
-          padding: '0 16px',
+          padding: '16px',
           borderRadius: '32px 32px 0 0',
         }}
       >
-        <img src={logo} width={96} alt="logo" />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <img src={logo} width={48} alt="logo" />
+          <h3>Welcome back, Shannon!</h3>
+        </div>
       </Layout.Header>
       <Layout className="layout">
         <Content className="content">
