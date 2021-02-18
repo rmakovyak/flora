@@ -28,7 +28,7 @@ function App() {
             justifyContent: 'space-between',
           }}
         >
-          <img src={logo} width={48} alt="logo" />
+          <img src={logo} width={48} height={48} alt="logo" />
           <h3>Welcome back, Shannon!</h3>
         </div>
       </Layout.Header>
