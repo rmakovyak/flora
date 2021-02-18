@@ -12,7 +12,13 @@ const { Content } = Layout;
 function App() {
   return (
     <Router>
-      <Layout.Header style={{ background: '#fff', padding: '0 16px' }}>
+      <Layout.Header
+        style={{
+          background: '#fff',
+          padding: '0 16px',
+          borderRadius: '32px 32px 0 0',
+        }}
+      >
         <img src={logo} width={96} alt="logo" />
       </Layout.Header>
       <Layout className="layout">
