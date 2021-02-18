@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { API_URL } from 'config';
 
 const instance = axios.create({
-  baseURL: 'https://6xyw5rm9x7.execute-api.eu-central-1.amazonaws.com',
+  baseURL: API_URL,
 });
 
 export default instance;

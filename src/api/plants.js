@@ -23,3 +23,7 @@ export function createPlantWatering(plantId) {
 export function getPlantWaterings() {
   return apiClient.get(`/watering`);
 }
+
+export function deleteWatering(id) {
+  return apiClient.delete(`/watering/${id}`);
+}

@@ -1,45 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { isEmpty } from 'lodash';
+import useSWR, { mutate } from 'swr';
 import {
   Space,
   Card,
-  Avatar,
-  Breadcrumb,
+  Empty,
   Skeleton,
   Modal,
   message,
+  notification,
+  Alert,
 } from 'antd';
 import {
-  HomeOutlined,
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import {
-  getPlants,
-  deletePlant,
-  createPlantWatering,
-  getPlantWaterings,
-} from 'api/plants';
+
+import { deletePlant, createPlantWatering, deleteWatering } from 'api/plants';
+import { API_URL } from 'config';
+
 import PlantCard from './PlantCard';
 
 const { confirm } = Modal;
 
+const PLANTS_URL = `${API_URL}/plants`;
+const WATERING_URL = `${API_URL}/watering`;
+const LOCATIONS_URL = `${API_URL}/locations`;
+const ALERTS_URL = `${API_URL}/alerts`;
+
 export default function MyList() {
-  const [plants, setPlants] = useState([]);
-  const [waterings, setWaterings] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const plantsResponse = await getPlants();
-      const wateringResponse = await getPlantWaterings();
-      setPlants(plantsResponse.data);
-      setWaterings(wateringResponse.data);
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
+  const { data: plants, error: pError } = useSWR(PLANTS_URL);
+  const { data: waterings, error: wError } = useSWR(WATERING_URL);
+  const { data: alerts, error: aError } = useSWR(ALERTS_URL);
+  const { data: locations, error: lError } = useSWR(LOCATIONS_URL);
+  const loading = !plants || !waterings || !locations || !alerts;
 
   const handleDelete = async (plant) => {
     try {
@@ -49,8 +44,7 @@ export default function MyList() {
         content: 'All data will be permanently lost',
         onOk: async () => {
           await deletePlant(plant.id);
-          const response = await getPlants();
-          setPlants(response.data);
+          mutate(PLANTS_URL);
           message.success(`I've removed ${plant.name} from your list`);
         },
       });
@@ -66,8 +60,9 @@ export default function MyList() {
         icon: <QuestionCircleOutlined />,
         onOk: async () => {
           await createPlantWatering(plant.id);
-          const response = await getPlantWaterings();
-          setWaterings(response.data);
+          mutate(WATERING_URL);
+          mutate(PLANTS_URL);
+          mutate(ALERTS_URL);
           message.success(`I've marked that ${plant.name} was watered!`);
         },
       });
@@ -76,35 +71,85 @@ export default function MyList() {
     }
   };
 
+  const handleDeleteWatering = async (id) => {
+    try {
+      confirm({
+        title: 'Delete this entry?',
+        icon: <QuestionCircleOutlined />,
+        onOk: async () => {
+          await deleteWatering(id);
+          mutate(WATERING_URL);
+          mutate(PLANTS_URL);
+          mutate(ALERTS_URL);
+          message.success(`I've deleted watering entry!`);
+        },
+      });
+    } catch {
+      message.error(`I've failed to delete watering entry`);
+    }
+  };
+
+  useEffect(() => {
+    alerts?.forEach((alert) =>
+      notification.open({
+        message: 'Time to water your plant',
+        description: `${alert.name} needs some water!`,
+      }),
+    );
+  }, [alerts]);
+
+  if (pError || wError || lError || aError) {
+    return (
+      <Alert
+        message="Something went wrong. You'll have to talk to Roman 😒"
+        type="error"
+      />
+    );
+  }
+  if (loading) {
+    return (
+      <Space space={24} direction="vertical" style={{ width: '100%' }}>
+        <Card>
+          <Skeleton loading={loading} avatar active />
+        </Card>
+        <Card>
+          <Skeleton loading={loading} avatar active />
+        </Card>
+        <Card>
+          <Skeleton loading={loading} avatar active />
+        </Card>
+      </Space>
+    );
+  }
+
+  if (isEmpty(plants)) {
+    return (
+      <Empty description="You don't have any plants yet">
+        <Link to="/add-plant">Add your first plant</Link>
+      </Empty>
+    );
+  }
+
   return (
-    <Space space={24} direction="vertical" style={{ width: '100%' }}>
-      <Breadcrumb>
-        <Breadcrumb.Item>
-          <HomeOutlined />
-          <Link to="/">
-            <span>My plants</span>
-          </Link>
-        </Breadcrumb.Item>
-      </Breadcrumb>
-      <div style={{ textAlign: 'right' }}>
+    <>
+      <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <Link to="/add-plant">Add new plant</Link>
       </div>
-      {loading && (
-        <Card>
-          <Skeleton loading={loading} avatar active></Skeleton>
-        </Card>
-      )}
-      {plants.length === 0 && !loading && <p>You have no plants!</p>}
-      {plants.map((data) => (
-        <PlantCard
-          plant={data}
-          onDelete={handleDelete}
-          onCreateWatering={handleCreateWatering}
-          waterings={
-            waterings?.filter(({ plantId }) => plantId === data.id) || []
-          }
-        />
-      ))}
-    </Space>
+      <Space space={24} direction="vertical" style={{ width: '100%' }}>
+        {plants.map((data) => (
+          <PlantCard
+            key={data.id}
+            plant={data}
+            onDelete={handleDelete}
+            onCreateWatering={handleCreateWatering}
+            onDeleteWatering={handleDeleteWatering}
+            waterings={
+              waterings?.filter(({ plantId }) => plantId === data.id) || []
+            }
+            hasWateringAlert={Boolean(alerts.find(({ id }) => id === data.id))}
+          />
+        ))}
+      </Space>
+    </>
   );
 }

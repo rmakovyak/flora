@@ -151,9 +151,8 @@ export default function AddPlant() {
       <Space size={24} direction="vertical" style={{ width: '100%' }}>
         <Breadcrumb>
           <Breadcrumb.Item>
-            <HomeOutlined />
             <Link to="/">
-              <span>My plants</span>
+              <HomeOutlined />
             </Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item>
