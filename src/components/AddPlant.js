@@ -61,14 +61,13 @@ export default function AddPlant() {
     };
 
     try {
-      createPlant(payload).then((response) => {
-        createLocation(response.data, location);
-      });
-      // await createLocation(response.data, location);
+      const response = await createPlant(payload);
+      await createLocation(response, location);
       message.success(`I've added a ${name} to your list.`);
       history.push('/');
     } catch (e) {
-      message.error(e.message, JSON.stringify(payload));
+      console.error(e);
+      message.error(`I've failed to add new plant, please check server logs.`);
     }
 
     setSubmitting(false);

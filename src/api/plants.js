@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+import { API_URL } from 'config';
 import apiClient from './apiClient';
 
 export function searchPlants(q) {
@@ -9,7 +11,12 @@ export function getPlants() {
 }
 
 export function createPlant(body) {
-  return apiClient.post('/plants', body);
+  return fetch(`${API_URL}/plants`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+    headers: { 'Content-Type': 'application/json' },
+  }).then((res) => res.json());
+  // return apiClient.post('/plants', body);
 }
 
 export function deletePlant(id) {
