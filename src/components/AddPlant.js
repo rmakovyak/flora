@@ -61,8 +61,7 @@ export default function AddPlant() {
     };
 
     try {
-      const response = await createPlant(payload);
-      await createLocation(response.data.data, location);
+      await createPlant(payload);
       message.success(`I've added a ${name} to your list.`);
       history.push('/');
     } catch (e) {
