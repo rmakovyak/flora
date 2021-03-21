@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Card,
   Avatar,
@@ -11,6 +11,7 @@ import {
   Space,
   Input,
   Form,
+  DatePicker,
 } from 'antd';
 import { DateTime } from 'luxon';
 import {
@@ -18,6 +19,7 @@ import {
   EnvironmentOutlined,
   DeleteOutlined,
   AlertTwoTone,
+  FieldTimeOutlined,
 } from '@ant-design/icons';
 import sortByDate from 'helpers/sortByDate';
 
@@ -32,8 +34,8 @@ export default function PlantCard({
   locations,
   hasWateringAlert,
 }) {
-  const [form] = Form.useForm();
-  const lastWatering = waterings[0];
+  const sortedWaterings = sortByDate(waterings);
+  const lastWatering = [...sortedWaterings].pop();
   const sortedLocations = sortByDate(locations);
   const lastLocation = [...sortedLocations].pop();
   const lastWateringDate = DateTime.fromISO(lastWatering?.creationDate);
@@ -97,12 +99,33 @@ export default function PlantCard({
 
         <Collapse.Panel header="Watering history" key="3">
           <Timeline>
-            {waterings.map(({ creationDate, id }) => (
+            {sortedWaterings.map(({ creationDate, id }) => (
               <Timeline.Item key={id}>
                 {DateTime.fromISO(creationDate).toLocaleString()}{' '}
                 <DeleteOutlined onClick={() => onDeleteWatering(id)} />
               </Timeline.Item>
             ))}
+            <Space>
+              <Form
+                layout="horizontal"
+                onFinish={(values) => {
+                  onCreateWatering(plant, values.wateringDate.toISOString());
+                }}
+              >
+                <Form.Item
+                  name="wateringDate"
+                  rules={[{ required: true, message: 'Please input date!' }]}
+                >
+                  <DatePicker />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit">
+                    <FieldTimeOutlined />
+                    Add watering date
+                  </Button>
+                </Form.Item>
+              </Form>
+            </Space>
           </Timeline>
         </Collapse.Panel>
         <Collapse.Panel header="Location history" key="4">
@@ -116,10 +139,8 @@ export default function PlantCard({
             <Space>
               <Form
                 layout="horizontal"
-                form={form}
                 onFinish={(values) => {
                   onCreateLocation(plant.id, values.location);
-                  // setLocationForm(false);
                 }}
               >
                 <Form.Item

@@ -18,6 +18,7 @@ import {
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
   PlusCircleOutlined,
+  SearchOutlined,
 } from '@ant-design/icons';
 import TextLoop from 'react-text-loop';
 
@@ -47,7 +48,12 @@ export default function MyList() {
   const loading = !plants || !waterings || !locations || !alerts;
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [actionSwitch, setActionSwitch] = useState('');
+
+  const handleToggleSearch = () => {
+    setShowSearch((prev) => !prev);
+  };
 
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
@@ -74,13 +80,13 @@ export default function MyList() {
     }
   };
 
-  const handleCreateWatering = async (plant) => {
+  const handleCreateWatering = async (plant, wateringDate) => {
     try {
       confirm({
         title: 'Did you water this plant?',
         icon: <QuestionCircleOutlined />,
         onOk: async () => {
-          await createPlantWatering(plant.id);
+          await createPlantWatering(plant.id, wateringDate);
           mutate(WATERING_URL);
           mutate(PLANTS_URL);
           mutate(ALERTS_URL);
@@ -205,19 +211,24 @@ export default function MyList() {
         />
       )}
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
+        <a style={{ marginRight: 16 }} onClick={handleToggleSearch}>
+          <SearchOutlined /> {showSearch ? 'Hide search' : 'Show search'}
+        </a>
         <Link to="/add-plant">
           <PlusCircleOutlined /> Add new plant
         </Link>
       </div>
 
-      <Form layout="vertical">
-        <Form.Item label="Name">
-          <Input onChange={handleSearch} />
-        </Form.Item>
-        <Form.Item label="Show watering only">
-          <Switch onChange={handleActionSwitch} />
-        </Form.Item>
-      </Form>
+      {showSearch && (
+        <Form layout="vertical">
+          <Form.Item label="Name">
+            <Input onChange={handleSearch} />
+          </Form.Item>
+          <Form.Item label="Show watering only">
+            <Switch onChange={handleActionSwitch} />
+          </Form.Item>
+        </Form>
+      )}
 
       <Space space={24} direction="vertical" style={{ width: '100%' }}>
         {displayedPlants.map((data) => (

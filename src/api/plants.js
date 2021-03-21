@@ -16,8 +16,8 @@ export function deletePlant(id) {
   return apiClient.delete(`/plants/${id}`);
 }
 
-export function createPlantWatering(plantId) {
-  return apiClient.post(`/watering/${plantId}`);
+export function createPlantWatering(plantId, creationDate) {
+  return apiClient.post(`/watering/${plantId}`, { creationDate });
 }
 
 export function getPlantWaterings() {
