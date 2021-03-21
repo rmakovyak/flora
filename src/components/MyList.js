@@ -80,7 +80,10 @@ export default function MyList() {
     }
   };
 
-  const handleCreateWatering = async (plant, wateringDate) => {
+  const handleCreateWatering = async (
+    plant,
+    wateringDate = new Date().toISOString(),
+  ) => {
     try {
       confirm({
         title: 'Did you water this plant?',
