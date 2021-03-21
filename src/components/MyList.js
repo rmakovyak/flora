@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { isEmpty } from 'lodash';
 import useSWR, { mutate } from 'swr';
@@ -9,14 +9,17 @@ import {
   Skeleton,
   Modal,
   message,
-  notification,
   Alert,
+  Input,
+  Switch,
+  Form,
 } from 'antd';
 import {
   ExclamationCircleOutlined,
   QuestionCircleOutlined,
   PlusCircleOutlined,
 } from '@ant-design/icons';
+import TextLoop from 'react-text-loop';
 
 import {
   deletePlant,
@@ -42,6 +45,17 @@ export default function MyList() {
   const { data: alerts, error: aError } = useSWR(ALERTS_URL);
   const { data: locations, error: lError } = useSWR(LOCATIONS_URL);
   const loading = !plants || !waterings || !locations || !alerts;
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [actionSwitch, setActionSwitch] = useState('');
+
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleActionSwitch = (isOn) => {
+    setActionSwitch(isOn);
+  };
 
   const handleDelete = async (plant) => {
     try {
@@ -124,15 +138,6 @@ export default function MyList() {
     }
   };
 
-  useEffect(() => {
-    alerts?.forEach((alert) =>
-      notification.open({
-        message: 'Time to water your plant',
-        description: `${alert.name} needs some water!`,
-      }),
-    );
-  }, [alerts]);
-
   if (pError || wError || lError || aError) {
     return (
       <Alert
@@ -165,15 +170,57 @@ export default function MyList() {
     );
   }
 
+  const displayedPlants = plants.filter((plant) => {
+    const nameFilter = plant.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+
+    const actionFilter = actionSwitch
+      ? alerts.find(({ id }) => id === plant.id)
+      : true;
+
+    return nameFilter && actionFilter;
+  });
+
   return (
     <>
+      {alerts.length && (
+        <Alert
+          style={{ marginBottom: '16px' }}
+          banner
+          message={
+            <div>
+              {alerts.length} plant(s) need some water:{' '}
+              <p>
+                <TextLoop mask>
+                  {alerts.map((alert) => (
+                    <div>
+                      <b>{alert.name}</b>{' '}
+                    </div>
+                  ))}
+                </TextLoop>
+              </p>
+            </div>
+          }
+        />
+      )}
       <div style={{ textAlign: 'right', marginBottom: '16px' }}>
         <Link to="/add-plant">
           <PlusCircleOutlined /> Add new plant
         </Link>
       </div>
+
+      <Form layout="vertical">
+        <Form.Item label="Name">
+          <Input onChange={handleSearch} />
+        </Form.Item>
+        <Form.Item label="Show watering only">
+          <Switch onChange={handleActionSwitch} />
+        </Form.Item>
+      </Form>
+
       <Space space={24} direction="vertical" style={{ width: '100%' }}>
-        {plants.map((data) => (
+        {displayedPlants.map((data) => (
           <PlantCard
             key={data.id}
             plant={data}

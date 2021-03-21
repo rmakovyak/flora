@@ -17,6 +17,7 @@
     "react-lazy-load-image-component": "^1.5.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.2",
+    "react-text-loop": "^2.3.0",
     "swr": "^0.4.2",
     "web-vitals": "^1.0.1"
   },
