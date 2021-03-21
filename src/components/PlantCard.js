@@ -98,7 +98,7 @@ export default function PlantCard({
         <Collapse.Panel header="Watering history" key="3">
           <Timeline>
             {waterings.map(({ creationDate, id }) => (
-              <Timeline.Item>
+              <Timeline.Item key={id}>
                 {DateTime.fromISO(creationDate).toLocaleString()}{' '}
                 <DeleteOutlined onClick={() => onDeleteWatering(id)} />
               </Timeline.Item>
@@ -108,7 +108,7 @@ export default function PlantCard({
         <Collapse.Panel header="Location history" key="4">
           <Timeline>
             {sortedLocations.map(({ creationDate, title, id }) => (
-              <Timeline.Item>
+              <Timeline.Item key={id}>
                 {title} {DateTime.fromISO(creationDate).toLocaleString()}{' '}
                 <DeleteOutlined onClick={() => onDeleteLocation(id)} />
               </Timeline.Item>
